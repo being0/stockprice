@@ -1,0 +1,11 @@
+spot-api:
+  base-url: http://localhost:9090
+  uri: /spot?stocks={stocks}
+  timeout: 10000
+
+daily-api:
+  url: http://localhost:9090
+  uri: /daily?stocks={stocks}
+  timeout: 10000
+
+
