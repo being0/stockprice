@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
@@ -18,9 +17,13 @@ import java.util.List;
 @RequestMapping("/price")
 public class PriceController {
 
+    @Resource
+    private PriceAggregatorService priceAggregatorService;
+
     @GetMapping
     Mono<List<PriceResult>> getPrice(@RequestParam List<String> stocks) {
-        return null;
+
+        return priceAggregatorService.getPrice(stocks);
     }
 
 }

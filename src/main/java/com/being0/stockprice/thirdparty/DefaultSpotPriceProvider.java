@@ -30,11 +30,13 @@ public class DefaultSpotPriceProvider implements SpotPriceProviderService {
     private String spotApiUri;
 
     @Override
-    public Mono<List<Price>> getSpotPrice(List<String> stocks) {
-        return null;
+    public Mono<List<Price>>  getSpotPrice(List<String> stocks) {
+
+        return callSpotPrice(stocks);
     }
 
     private Mono<List<Price>> callSpotPrice(List<String> stocks) {
+        if (stocks == null || stocks.isEmpty()) return Mono.empty();
 
         return spotApiClient.get()
                 .uri(spotApiUri, String.join(",", stocks))

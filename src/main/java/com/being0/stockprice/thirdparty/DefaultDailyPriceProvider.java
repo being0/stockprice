@@ -31,10 +31,12 @@ public class DefaultDailyPriceProvider implements DailyPriceProviderService {
 
     @Override
     public Mono<List<Price>> getDailyPrice(List<String> stocks) {
-        return null;
+
+        return callDailyPrice(stocks);
     }
 
     private Mono<List<Price>> callDailyPrice(List<String> stocks) {
+        if (stocks == null || stocks.isEmpty()) return Mono.empty();
 
         return dailyApiClient.get()
                 .uri(dailyApiUri, String.join(",", stocks))
