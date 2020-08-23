@@ -31,28 +31,28 @@ class PriceAggregatorServiceTest extends Specification {
 
     def "test 2 stocks call, it should wait for 5 seconds'"() {
         given:
-            stubTwoItems()
+        stubTwoItems()
         when:
-            Mono<List<PriceResult>> mono = aggregationService.getPrice(['GOOG', 'AAPL'])
+        Mono<List<PriceResult>> mono = aggregationService.getPrice(['GOOG', 'AAPL'])
         then:
-            Duration duration = StepVerifier
-                    .create(mono)
-                    .thenConsumeWhile({ result ->
-                        Assertions.assertThat(result).isNotNull()
-                        Assertions.assertThat(result).hasSize(2)
+        Duration duration = StepVerifier
+                .create(mono)
+                .thenConsumeWhile({ result ->
+                    assert result != null
+                    assert result.size() == 2
 
-                        Assertions.assertThat(result.get(0).stock).is('GOOG')
-                        Assertions.assertThat(result.get(0).spot).is(1580.42)
-                        Assertions.assertThat(result.get(0).daily).is(1590.16)
+                    assert result.get(0).stock == 'GOOG'
+                    assert result.get(0).spot == 1580.42
+                    assert result.get(0).daily == 1590.16
 
-                        Assertions.assertThat(result.get(1).stock).is('AAPL')
-                        Assertions.assertThat(result.get(1).spot).is(497.48)
-                        Assertions.assertThat(result.get(1).daily).is(510.56)
-                        return true
-                    })
-                    .verifyComplete()
-        then:
-            duration > Duration.ofSeconds(5)
+                    assert result.get(1).stock == 'AAPL'
+                    assert result.get(1).spot == 497.48
+                    assert result.get(1).daily == 510.56
+                    return true
+                })
+                .verifyComplete()
+        and:
+        Duration.ofSeconds(6) > duration > Duration.ofSeconds(5)
     }
 
     def stubTwoItems() {

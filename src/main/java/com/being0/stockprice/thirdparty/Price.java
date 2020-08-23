@@ -1,6 +1,5 @@
 package com.being0.stockprice.thirdparty;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -8,7 +7,6 @@ import lombok.Data;
  * @version 1, 08/22/2020
  */
 @Data
-@AllArgsConstructor
 public class Price {
 
     private String stock;
