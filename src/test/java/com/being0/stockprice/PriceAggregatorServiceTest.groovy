@@ -18,10 +18,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*
 class PriceAggregatorServiceTest extends Specification {
 
     @Autowired
-    private PriceAggregatorService aggregationService;
+    private PriceAggregatorService aggregationService
 
     @Shared
-    private WireMockServer wireMockServer;
+    private WireMockServer wireMockServer
 
     def setupSpec() {
         wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig().port(9090))
@@ -29,7 +29,7 @@ class PriceAggregatorServiceTest extends Specification {
         configureFor("localhost", 9090)
     }
 
-    def "when get is performed then the response has status 200 and content is 'Hello world!'"() {
+    def "test 2 stocks call, it should wait for 5 seconds'"() {
         given:
             stubTwoItems()
         when:
@@ -56,8 +56,8 @@ class PriceAggregatorServiceTest extends Specification {
     }
 
     def stubTwoItems() {
-        createStub("/spot?stocks=GOOG,AAPL", "[{\"stock\": \"GOOG\", \"value\": 1580.42},{\"stock\": \"AAPL\", \"value\": 497.48}]")
-        createStub("/daily?stocks=GOOD,AAPL", "[{\"stock\": \"GOOG\", \"value\": 1590.16},{\"stock\": \"AAPL\", \"value\": 510.56}]")
+        createStub("/spot?stocks=GOOG%2CAAPL", "[{\"stock\": \"GOOG\", \"value\": 1580.42},{\"stock\": \"AAPL\", \"value\": 497.48}]")
+        createStub("/daily?stocks=GOOG%2CAAPL", "[{\"stock\": \"GOOG\", \"value\": 1590.16},{\"stock\": \"AAPL\", \"value\": 510.56}]")
     }
 
     def createStub(String path, String response) {

@@ -4,7 +4,7 @@ spot-api:
   timeout: 10000
 
 daily-api:
-  url: http://localhost:9090
+  base-url: http://localhost:9090
   uri: /daily?stocks={stocks}
   timeout: 10000
 

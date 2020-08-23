@@ -13,12 +13,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class ApiConfig {
 
     @Bean
-    public WebClient spotApiClient(@Value("spot-api.url") String spotUrl){
+    public WebClient spotApiClient(@Value("${spot-api.base-url}") String spotUrl){
         return WebClient.create(spotUrl);
     }
 
     @Bean
-    public WebClient dailyApiClient(@Value("daily-api.url") String dailyUrl){
+    public WebClient dailyApiClient(@Value("${daily-api.base-url}") String dailyUrl){
         return WebClient.create(dailyUrl);
     }
 }
