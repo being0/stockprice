@@ -52,7 +52,8 @@ class PriceAggregatorServiceTest extends Specification {
                 })
                 .verifyComplete()
         and:
-        Duration.ofSeconds(6) > duration > Duration.ofSeconds(5)
+        duration > Duration.ofSeconds(5)
+        duration < Duration.ofSeconds(6)
     }
 
     def stubTwoItems() {
