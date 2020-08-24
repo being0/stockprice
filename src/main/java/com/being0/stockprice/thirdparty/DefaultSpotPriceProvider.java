@@ -1,5 +1,6 @@
 package com.being0.stockprice.thirdparty;
 
+import com.being0.stockprice.PriceResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -12,10 +13,12 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.UnicastProcessor;
 import reactor.core.scheduler.Schedulers;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:raliakbari@gmail.com">Reza Aliakbari</a>
@@ -32,15 +35,16 @@ public class DefaultSpotPriceProvider implements SpotPriceProviderService {
     @Value("${spot-api.uri}")
     private String spotApiUri;
 
-    private final UnicastProcessor<String> bufferProcessor;
+    private UnicastProcessor<String> bufferProcessor;
     private Flux<List<Price>> bufferedFlux;
-    private final FluxSink<String> bufferSink;
+    private FluxSink<String> bufferSink;
     @Value("${spot-api.buffer-size:5}")
     private Integer spotApiBufferSize;
     @Value("${spot-api.buffer-timeout:5}")
     private Integer spotApiBufferTimeout;
 
-    public DefaultSpotPriceProvider() {
+    @PostConstruct
+    public void createBuffer() {
         bufferProcessor = new UnicastProcessor<>(new ArrayDeque<>());
         // Here we use bufferTimeout to queue requested items and make a call when we have 5 items or when oldest
         // item has already wait 5 seconds we call share to make sure we can share the Flux with multiple subscribers
@@ -57,19 +61,25 @@ public class DefaultSpotPriceProvider implements SpotPriceProviderService {
 
     @Override
     public Mono<List<Price>> getSpotPrice(List<String> stocks) {
+        if (stocks == null || stocks.isEmpty()) return Mono.empty();
 
-//        Mono.<List<Price>>create(emitter->{
+//        return Mono.create(emitter -> {
+//
 //            Flux.from(bufferedFlux)
 //                    //Filtering values which is match with our request
-//                    .filter(p->p.get)
-//                    .map()
-//        }
-
+//                    .map(ps -> ps.stream().filter(p -> stocks.contains(p.getStock())).collect(Collectors.toList()))
+//                    .subscribe(result -> {
+//                        if (result.size() == stocks.size()){
+//                            emitter.success(result);
+//                        }
+//                    });
+//        })
+//                .doOnSubscribe(subscription -> stocks.forEach(i -> bufferSink.next(i))).subscribeOn(Schedulers.elastic())
+//                .subscribeOn(Schedulers.elastic());
         return callSpotPrice(stocks);
     }
 
     private Mono<List<Price>> callSpotPrice(List<String> stocks) {
-        if (stocks == null || stocks.isEmpty()) return Mono.empty();
 
         return spotApiClient.get()
                 .uri(spotApiUri, String.join(",", stocks))
