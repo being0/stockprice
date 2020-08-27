@@ -7,6 +7,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
@@ -63,20 +64,31 @@ public class DefaultSpotPriceProvider implements SpotPriceProviderService {
     public Mono<List<Price>> getSpotPrice(List<String> stocks) {
         if (stocks == null || stocks.isEmpty()) return Mono.empty();
 
-//        return Mono.create(emitter -> {
-//
-//            Flux.from(bufferedFlux)
-//                    //Filtering values which is match with our request
-//                    .map(ps -> ps.stream().filter(p -> stocks.contains(p.getStock())).collect(Collectors.toList()))
-//                    .subscribe(result -> {
-//                        if (result.size() == stocks.size()){
-//                            emitter.success(result);
-//                        }
-//                    });
-//        })
-//                .doOnSubscribe(subscription -> stocks.forEach(i -> bufferSink.next(i))).subscribeOn(Schedulers.elastic())
-//                .subscribeOn(Schedulers.elastic());
-        return callSpotPrice(stocks);
+        ArrayList<Price> prices = new ArrayList<>();
+
+        Mutable<Disposable> ds = new Mutable<>();
+        return Mono.<List<Price>>create(emitter -> {
+
+            // Subscribe on the buffer
+            ds.setValue(Flux.from(bufferedFlux)
+                    //Filtering values which is match with our request
+                    .map(ps -> ps.stream().filter(p -> stocks.contains(p.getStock())).collect(Collectors.toList()))
+                    .subscribe(result -> {
+                        log.info("Receive data request={}, result={}", stocks, result);
+                        prices.addAll(result);
+                        if (prices.size() == stocks.size()) {
+                            emitter.success(prices);
+                            log.info("Emitter has sent the data.");
+                        }
+                    }));
+        })
+                // We send our requested items to FluxSink at doOnSubscribe of our created Mono to make sure our
+                // subscription won't miss issued items
+                .doOnSubscribe(subscription -> stocks.forEach(i -> bufferSink.next(i))).subscribeOn(Schedulers.elastic())
+                .subscribeOn(Schedulers.elastic())
+                .doOnTerminate(() -> {
+                    if (ds.getValue() != null && !ds.getValue().isDisposed()) ds.getValue().dispose();
+                });
     }
 
     private Mono<List<Price>> callSpotPrice(List<String> stocks) {
