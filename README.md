@@ -1,7 +1,7 @@
 # Stock Price(Sample Spring Reactor project)
 
 Stock price project should provide an endpoint to access to Spot(current) and Daily average stock prices. 
-Stocks could be sent as a list of comma separated list. To access to spot and daily prices, application 
+Stocks could be sent as a list of comma separated stocks. To access to spot and daily prices, application 
 should call two third-party APIs, However the call to Spot API should be sent as batch of 5 requests or after 
 5 seconds. 
 Here are some concerns that should be considered:
