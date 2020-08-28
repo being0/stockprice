@@ -1,6 +1,5 @@
 package com.being0.stockprice.thirdparty;
 
-import com.being0.stockprice.PriceResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -17,7 +16,10 @@ import reactor.core.scheduler.Schedulers;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
